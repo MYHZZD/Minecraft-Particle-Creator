@@ -3199,15 +3199,23 @@ int main()
 		anglej0 = atan2(jz, jx);
 
 		int i = 0;
+<<<<<<< HEAD
 		int countloop = 1;
 
 		for (float k = 0; countloop <= tickchange * ticki; k += theta / (tickchange * ticki - 1))
+=======
+
+		for (float k = 0; k <= theta; k += theta / (tickchange * ticki))
+>>>>>>> 6cd190de9ec75f883e377613ba825475fe9294ff
 		{
 			cx[i] = (x3 - x1) + 0.5 * Lxz * cos(anglej0 + k);
 			cy[i] = (k / theta) * (y2 - y1);
 			cz[i] = (z3 - z1) + 0.5 * Lxz * sin(anglej0 + k);
 			i++;
+<<<<<<< HEAD
 			countloop++;
+=======
+>>>>>>> 6cd190de9ec75f883e377613ba825475fe9294ff
 		}
 
 		int ifloop = 0;
@@ -3269,28 +3277,44 @@ int main()
 			jz2 = z4 - z3;
 			anglej1 = atan2(jz2, jx2);//≥ı ºΩ«2
 
+<<<<<<< HEAD
 			countloop = 1;
 
 			if (anglej1 > anglej0)
 			{
 				for (float k = 0; countloop <= tickchange * ticki; k += theta / (tickchange * ticki - 1))
+=======
+			if (anglej1 > anglej0)
+			{
+				for (float k = 0; k <= theta; k += theta / (tickchange * ticki))
+>>>>>>> 6cd190de9ec75f883e377613ba825475fe9294ff
 				{
 					cx[i] = (x3 - x1) + 0.5 * Lxz * cos(anglej0 + k);
 					cy[i] = (k / theta) * (y2 - y1);
 					cz[i] = (z3 - z1) + 0.5 * Lxz * sin(anglej0 + k);
 					i++;
+<<<<<<< HEAD
 					countloop++;
+=======
+>>>>>>> 6cd190de9ec75f883e377613ba825475fe9294ff
 				}
 			}
 			else
 			{
+<<<<<<< HEAD
 				for (float k = 0; countloop <= tickchange * ticki; k += theta / (tickchange * ticki - 1))
+=======
+				for (float k = 0; k <= theta; k += theta / (tickchange * ticki))
+>>>>>>> 6cd190de9ec75f883e377613ba825475fe9294ff
 				{
 					cx[i] = (x3 - x1) + 0.5 * Lxz * cos(anglej0 - k);
 					cy[i] = (k / theta) * (y2 - y1);
 					cz[i] = (z3 - z1) + 0.5 * Lxz * sin(anglej0 - k);
 					i++;
+<<<<<<< HEAD
 					countloop++;
+=======
+>>>>>>> 6cd190de9ec75f883e377613ba825475fe9294ff
 				}
 			}
 
