@@ -14,6 +14,7 @@ using namespace Gdiplus;
 float cx[262144];
 float cy[262144];
 float cz[262144];
+float flexible_argument[262144];
 
 int basic_rotate(int i);//基础旋转
 int comproportionation(int i);//归中特效，写旋转写出来的BUG
@@ -24,6 +25,7 @@ string writefunction_m4(int i, int x, int y, int z, int tickchange, int tickall,
 string writefunction_m5(int i, int x, int y, int z, int tickchange, int tickall, string fname);//基础曲线生成（扩散）
 string writefunction_m6(int i, int x, int y, int z, int tickchange, int tickall, string fname);//基础曲线生成（瞬时）
 string writefunction_m7(int i, int x, int y, int z, int tickchange, int tickall, string fname);//瓶子曲线生成（瞬时）
+string writefunction_m8(int i, int x, int y, int z, int density, int tickall, string fname);//基础曲线生成 动态密度
 int writefunction_m21(int i);//几何体变换生成 模式1
 int writefunction_m22(int i);//几何体变换生成 模式2
 int writefunction_m23(int i);//几何体变换生成 模式3
@@ -3162,6 +3164,7 @@ int main()
 		cout << "输入粒子密度" << endl;//每tick执行多少指令
 		float tickchange;
 		cin >> tickchange;
+		float tickchange2 = floor(tickchange / (2.0 * 3.1415926535));
 		cout << "输入函数名称" << endl;
 		string fname;
 		cin >> fname;
@@ -3198,14 +3201,17 @@ int main()
 		float anglej0, anglej1;
 		anglej0 = atan2(jz, jx);
 
+		tickchange = floor(sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2)) * tickchange2);
+
 		int i = 0;
-		int countloop = 1;
+		float countloop = 1;
 
 		for (float k = 0; countloop <= tickchange * ticki; k += theta / (tickchange * ticki - 1))
 		{
 			cx[i] = (x3 - x1) + 0.5 * Lxz * cos(anglej0 + k);
 			cy[i] = (k / theta) * (y2 - y1);
 			cz[i] = (z3 - z1) + 0.5 * Lxz * sin(anglej0 + k);
+			flexible_argument[i] = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2));//半径
 			i++;
 			countloop++;
 		}
@@ -3249,14 +3255,31 @@ int main()
 			y4 = y1 + cy[i - 1] - cy[i - 2];
 			z4 = z1 + cz[i - 1] - cz[i - 2];
 
-			x3 = (x1 + x2) / 2;
-			y3 = (y1 + y2) / 2;
-			z3 = (z1 + z2) / 2;
+			float a1, b1, c1, d1;
+			float a2, b2, c2, d2;
+			float a3, b3, c3, d3;
+
+			a1 = (y1 * z2 - y2 * z1 - y1 * z4 + y4 * z1 + y2 * z4 - y4 * z2);
+			b1 = -(x1 * z2 - x2 * z1 - x1 * z4 + x4 * z1 + x2 * z4 - x4 * z2);
+			c1 = (x1 * y2 - x2 * y1 - x1 * y4 + x4 * y1 + x2 * y4 - x4 * y2);
+			d1 = -(x1 * y2 * z4 - x1 * y4 * z2 - x2 * y1 * z4 + x2 * y4 * z1 + x4 * y1 * z2 - x4 * y2 * z1);
+			a2 = 2.0 * (x2 - x1);
+			b2 = 2.0 * (y2 - y1);
+			c2 = 2.0 * (z2 - z1);
+			d2 = x1 * x1 + y1 * y1 + z1 * z1 - x2 * x2 - y2 * y2 - z2 * z2;
+			a3 = 2.0 * (x4 - x1);
+			b3 = 2.0 * (y4 - y1);
+			c3 = 2.0 * (z4 - z1);
+			d3 = x1 * x1 + y1 * y1 + z1 * z1 - x4 * x4 - y4 * y4 - z4 * z4;
+
+			x3 = -(b1 * c2 * d3 - b1 * c3 * d2 - b2 * c1 * d3 + b2 * c3 * d1 + b3 * c1 * d2 - b3 * c2 * d1) / (a1 * b2 * c3 - a1 * b3 * c2 - a2 * b1 * c3 + a2 * b3 * c1 + a3 * b1 * c2 - a3 * b2 * c1);
+			y3 = (a1 * c2 * d3 - a1 * c3 * d2 - a2 * c1 * d3 + a2 * c3 * d1 + a3 * c1 * d2 - a3 * c2 * d1) / (a1 * b2 * c3 - a1 * b3 * c2 - a2 * b1 * c3 + a2 * b3 * c1 + a3 * b1 * c2 - a3 * b2 * c1);
+			z3 = -(a1 * b2 * d3 - a1 * b3 * d2 - a2 * b1 * d3 + a2 * b3 * d1 + a3 * b1 * d2 - a3 * b2 * d1) / (a1 * b2 * c3 - a1 * b3 * c2 - a2 * b1 * c3 + a2 * b3 * c1 + a3 * b1 * c2 - a3 * b2 * c1);
 
 			L12 = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 			L13 = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2));
 			L23 = sqrt(pow(x3 - x2, 2) + pow(y3 - y2, 2) + pow(z3 - z2, 2));
-			Lxz = sqrt(pow(x2 - x1, 2) + pow(z2 - z1, 2));
+			Lxz = sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2));
 			theta = acos((pow(L13, 2) + pow(L23, 2) - pow(L12, 2)) / (2.0 * L13 * L23));//总旋转角
 
 			jx = x1 - x3;
@@ -3269,26 +3292,33 @@ int main()
 			jz2 = z4 - z3;
 			anglej1 = atan2(jz2, jx2);//初始角2
 
+			if (anglej1 < anglej0)
+				theta = 2.0 * 3.1415926535 - theta;
+
+			tickchange = floor(sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2)) * tickchange2);
+
 			countloop = 1;
 
 			if (anglej1 > anglej0)
 			{
-				for (float k = 0; countloop <= tickchange * ticki; k += theta / (tickchange * ticki - 1))
+				for (float k = 0; countloop <= tickchange * ticki; k += (theta / (tickchange * ticki - 1)))
 				{
-					cx[i] = (x3 - x1) + 0.5 * Lxz * cos(anglej0 + k);
+					cx[i] = (x3 - x1) + Lxz * cos(anglej0 + k);
 					cy[i] = (k / theta) * (y2 - y1);
-					cz[i] = (z3 - z1) + 0.5 * Lxz * sin(anglej0 + k);
+					cz[i] = (z3 - z1) + Lxz * sin(anglej0 + k);
+					flexible_argument[i] = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2));//半径
 					i++;
 					countloop++;
 				}
 			}
 			else
 			{
-				for (float k = 0; countloop <= tickchange * ticki; k += theta / (tickchange * ticki - 1))
+				for (float k = 0; countloop <= tickchange * ticki; k += (theta / (tickchange * ticki - 1)))
 				{
-					cx[i] = (x3 - x1) + 0.5 * Lxz * cos(anglej0 - k);
+					cx[i] = (x3 - x1) + Lxz * cos(anglej0 - k);
 					cy[i] = (k / theta) * (y2 - y1);
-					cz[i] = (z3 - z1) + 0.5 * Lxz * sin(anglej0 - k);
+					cz[i] = (z3 - z1) + Lxz * sin(anglej0 - k);
+					flexible_argument[i] = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2));//半径
 					i++;
 					countloop++;
 				}
@@ -3304,7 +3334,7 @@ int main()
 		y = y2 - y1;
 		z = z2 - z1;
 
-		writefunction_m1(i + 1 - looptp, x, y, z, tickchange, tickall, fname);
+		writefunction_m8(i + 1 - looptp, x, y, z, tickchange2, tickall, fname);
 
 		docname = fname + ".mcfunction";//启动子
 		remove(docname.c_str());
@@ -4073,6 +4103,9 @@ string writefunction_m2(int i, int x, int y, int z, int tickchange, int tickall,
 	cout << "输入蓬松距离" << endl;//粒子存在时间
 	int psize;
 	cin >> psize;
+	cout << "输入蓬松粒子数量" << endl;//粒子存在时间
+	int pcount;
+	cin >> pcount;
 
 	int doc = 0;//每个文件有几行
 	int docchange = 0;//文件数量
@@ -4093,7 +4126,7 @@ string writefunction_m2(int i, int x, int y, int z, int tickchange, int tickall,
 				<< " ~" << cx[jsonoutloop] << " ~" << cy[jsonoutloop] << " ~" << cz[jsonoutloop]
 				<< " 0.2 0.2 0.2"
 				<< " " << (11.0 * psize) / 0.2
-				<< " 16 force @a" << endl;
+				<< " " << pcount << " force @a" << endl;
 			jsonoutloop++;
 		}
 		functioncout << "tag @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange << "] add " << docchange + 1 << "" << endl;
@@ -4117,7 +4150,7 @@ string writefunction_m2(int i, int x, int y, int z, int tickchange, int tickall,
 				<< " ~" << x << " ~" << y << " ~" << z
 				<< " 0.2 0.2 0.2"
 				<< " " << (11.0 * psize) / 0.2
-				<< " 16 force @a" << endl;
+				<< " " << pcount << " force @a" << endl;
 			functioncout << "kill @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << tickall << "]";
 			functioncout.close();
 		}
@@ -4441,6 +4474,65 @@ string writefunction_m7(int i, int x, int y, int z, int tickchange, int tickall,
 				<< fixed << setprecision(0)
 				<< (red1 + docchange * floor((red2 - red1) / tickall)) * 65536 + (green1 + docchange * floor((green2 - green1) / tickall)) * 256 + (blue1 + docchange * floor((blue2 - blue1) / tickall))
 				<< " " << pptime << " 1"
+				<< fixed << setprecision(8)
+				<< " ~" << x << " ~" << y << " ~" << z
+				<< " 0 0 0"
+				<< " 0"
+				<< " 0 force @a" << endl;
+			functioncout << "kill @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << tickall << "]";
+			functioncout.close();
+		}
+		else
+			jsonoutloop--;
+	}
+
+	string docname = fname + ".mcfunction";//启动子
+	ofstream functioncout(docname);
+	functioncout << "summon minecraft:armor_stand ~ ~ ~ {Tags:[\"" << fname << "\",\"0\"],Invisible:1,Marker:1}" << endl;
+	functioncout << "function minecraft:" << fname << "_0";
+	functioncout.close();
+
+	return fname;
+}
+
+string writefunction_m8(int i, int x, int y, int z, int density, int tickall, string fname)
+{
+	int doc = 0;//每个文件有几行
+	int docchange = 0;//文件数量
+	int tickchange;
+	tickchange = 8192;
+
+	for (int jsonoutloop = 0; jsonoutloop < i; jsonoutloop++)
+	{
+		string docc = to_string(docchange);
+		string docname = fname + "_" + docc + ".mcfunction";
+		ofstream functioncout(docname);
+		for (int doc = 0; doc < tickchange; doc++)//循环输出
+		{
+			functioncout << "execute as @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange << "] at @s run "
+				<< "particle minecraft:end_rod"
+				<< fixed << setprecision(8)
+				<< " ~" << cx[jsonoutloop] << " ~" << cy[jsonoutloop] << " ~" << cz[jsonoutloop]
+				<< " 0 0 0"
+				<< " 0"
+				<< " 0 force @a" << endl;
+			tickchange = floor(flexible_argument[jsonoutloop] * density);
+			jsonoutloop++;
+		}
+		functioncout << "tag @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange << "] add " << docchange + 1 << "" << endl;
+		functioncout << "tag @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange + 1 << "] remove " << docchange << "" << endl;
+		docchange++;
+		docc = to_string(docchange);
+		string funname = fname + "_" + docc;
+		functioncout << "schedule function minecraft:" << funname << " 1t";
+		functioncout.close();
+		if (docchange == tickall)//最后一个文件输出
+		{
+			string docc = to_string(docchange);
+			string docname = fname + "_" + docc + ".mcfunction";
+			ofstream functioncout(docname);
+			functioncout << "execute as @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange << "] at @s run "
+				<< "particle minecraft:end_rod"
 				<< fixed << setprecision(8)
 				<< " ~" << x << " ~" << y << " ~" << z
 				<< " 0 0 0"
