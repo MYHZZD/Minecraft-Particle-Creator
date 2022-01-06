@@ -1,3 +1,2 @@
 # Minecraft-Particle-Creator
-A-Minecraft-Particle-Creator
-MADE BY MYHZZD
+A-Minecraft-Particle-Creator made by MYHZZD
