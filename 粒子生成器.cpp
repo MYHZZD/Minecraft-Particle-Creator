@@ -30,7 +30,7 @@ int writefunction_m21(int i);//几何体变换生成 模式1
 int writefunction_m22(int i);//几何体变换生成 模式2
 int writefunction_m23(int i);//几何体变换生成 模式3
 int writefunction_m24(int i);//几何体变换生成 模式4
-float normal_vector_rot(float dx, float dy, float dz, float x, float y, float z, string n);//伴随旋转，给出基准向量
+float normal_vector_rot(float dx, float dy, float dz, float x, float y, float z, string n);//伴随旋转，给出一个基准向量
 
 int main()
 {
@@ -60,6 +60,7 @@ int main()
 		<< "501.正方体边框" << endl
 		<< "1000.粒子画" << endl
 		<< "1001.falling_block" << endl
+		<< "1002.手持雪球的盔甲架(幻幻)" << endl
 		<< "--------------------------" << endl
 		<< "选择你的模式:";
 	int moudle;
@@ -3276,6 +3277,11 @@ int main()
 			y3 = (a1 * c2 * d3 - a1 * c3 * d2 - a2 * c1 * d3 + a2 * c3 * d1 + a3 * c1 * d2 - a3 * c2 * d1) / (a1 * b2 * c3 - a1 * b3 * c2 - a2 * b1 * c3 + a2 * b3 * c1 + a3 * b1 * c2 - a3 * b2 * c1);
 			z3 = -(a1 * b2 * d3 - a1 * b3 * d2 - a2 * b1 * d3 + a2 * b3 * d1 + a3 * b1 * d2 - a3 * b2 * d1) / (a1 * b2 * c3 - a1 * b3 * c2 - a2 * b1 * c3 + a2 * b3 * c1 + a3 * b1 * c2 - a3 * b2 * c1);
 
+			float xzx, xzz;
+			xzx = normal_vector_rot(-a1, -b1, -c1, 1, 0, 0, "x");
+			xzz = normal_vector_rot(-a1, -b1, -c1, 1, 0, 0, "z");
+
+
 			L12 = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 			L13 = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2));
 			L23 = sqrt(pow(x3 - x2, 2) + pow(y3 - y2, 2) + pow(z3 - z2, 2));
@@ -3285,12 +3291,12 @@ int main()
 			jx = x1 - x3;
 			jy = y1 - y3;
 			jz = z1 - z3;
-			anglej0 = atan2(jz, jx);//初始角
+			anglej0 = acos((jx * xzx + jz * xzz) / sqrt(pow(jx, 2) + pow(jy, 2) + pow(jz, 2)));//初始角
 
 			jx2 = x4 - x3;
 			jy2 = y4 - y3;
 			jz2 = z4 - z3;
-			anglej1 = atan2(jz2, jx2);//初始角2
+			anglej1 = acos((jx2 * xzx + jz2 * xzz) / sqrt(pow(jx2, 2) + pow(jy2, 2) + pow(jz2, 2)));//初始角2
 
 			if (anglej1 < anglej0)
 				theta = 2.0 * 3.1415926535 - theta;
@@ -3303,9 +3309,9 @@ int main()
 			{
 				for (float k = 0; countloop <= tickchange * ticki; k += (theta / (tickchange * ticki - 1)))
 				{
-					cx[i] = (x3 - x1) + Lxz * cos(anglej0 + k);
-					cy[i] = (k / theta) * (y2 - y1);
-					cz[i] = (z3 - z1) + Lxz * sin(anglej0 + k);
+					cx[i] = (x3 - x1) + normal_vector_rot(-a1, -b1, -c1, Lxz * cos(anglej0 + k), 0, Lxz * sin(anglej0 + k), "x");
+					cy[i] = (y3 - y1) + normal_vector_rot(-a1, -b1, -c1, Lxz * cos(anglej0 + k), 0, Lxz * sin(anglej0 + k), "y");
+					cz[i] = (z3 - z1) + normal_vector_rot(-a1, -b1, -c1, Lxz * cos(anglej0 + k), 0, Lxz * sin(anglej0 + k), "z");
 					flexible_argument[i] = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2));//半径
 					i++;
 					countloop++;
@@ -3315,9 +3321,9 @@ int main()
 			{
 				for (float k = 0; countloop <= tickchange * ticki; k += (theta / (tickchange * ticki - 1)))
 				{
-					cx[i] = (x3 - x1) + Lxz * cos(anglej0 - k);
-					cy[i] = (k / theta) * (y2 - y1);
-					cz[i] = (z3 - z1) + Lxz * sin(anglej0 - k);
+					cx[i] = (x3 - x1) - normal_vector_rot(a1, b1, c1, Lxz * cos(anglej0 - k), 0, Lxz * sin(anglej0 - k), "x");
+					cy[i] = (y3 - y1) - normal_vector_rot(a1, b1, c1, Lxz * cos(anglej0 - k), 0, Lxz * sin(anglej0 - k), "y");
+					cz[i] = (z3 - z1) - normal_vector_rot(a1, b1, c1, Lxz * cos(anglej0 - k), 0, Lxz * sin(anglej0 - k), "z");
 					flexible_argument[i] = sqrt(pow(x3 - x1, 2) + pow(y3 - y1, 2) + pow(z3 - z1, 2));//半径
 					i++;
 					countloop++;
@@ -3973,6 +3979,94 @@ int main()
 			cout << fixed << setprecision(0) << i << ".";
 			cout << fixed << setprecision(14) << "Vy=" << (motiony + 1.96) * pow(0.98, i) - 1.96 << endl;
 		}
+	}
+	break;
+	case 1002:
+	{
+		cout << "输入起点坐标" << endl;
+		float x1, y1, z1;
+		cin >> x1 >> y1 >> z1;
+		cout << "输入终点坐标" << endl;
+		float x2, y2, z2;
+		cin >> x2 >> y2 >> z2;
+		cout << "输入TP密度" << endl;//每tick执行多少指令
+		int tickchange;
+		cin >> tickchange;
+		cout << "输入时间总长" << endl;//在多少tick内执行全部指令
+		int tickall;
+		cin >> tickall;
+		cout << "输入初始角度" << endl;//在多少tick内执行全部指令
+		int rotsnow;
+		cin >> rotsnow;
+		cout << "输入函数名称" << endl;
+		string fname;
+		cin >> fname;
+
+		float x, y, z;//差值
+		x = x2 - x1;
+		y = y2 - y1;
+		z = z2 - z1;
+
+		float a, b, c;//直接投影
+		a = x / (sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)));
+		b = y / (sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)));
+		c = z / (sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)));
+
+		int i = 0;
+
+		for (float k = 0; k <= (sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2))); k += ((sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2))) / (tickall * tickchange)))
+		{
+			cx[i] = ((sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2))) / (tickall * tickchange)) * a;
+			cy[i] = ((sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2))) / (tickall * tickchange)) * b;
+			cz[i] = ((sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2))) / (tickall * tickchange)) * c;
+			i++;
+		}
+
+		int doc = 0;//每个文件有几行
+		int docchange = 0;//文件数量
+
+		for (int jsonoutloop = 0; jsonoutloop < i; jsonoutloop++)
+		{
+			string docc = to_string(docchange);
+			string docname = fname + "_" + docc + ".mcfunction";
+			ofstream functioncout(docname);
+			for (int doc = 0; doc < tickchange; doc++)//循环输出
+			{
+				functioncout << "execute as @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange << "] at @s run "
+					<< "tp"
+					<< fixed << setprecision(8)
+					<< " ~" << cx[jsonoutloop] << " ~" << cy[jsonoutloop] << " ~" << cz[jsonoutloop] << endl;
+				jsonoutloop++;
+			}
+			functioncout << "tag @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange << "] add " << docchange + 1 << "" << endl;
+			functioncout << "tag @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange + 1 << "] remove " << docchange << "" << endl;
+			docchange++;
+			docc = to_string(docchange);
+			string funname = fname + "_" + docc;
+			functioncout << "schedule function minecraft:" << funname << " 1t";
+			functioncout.close();
+			if (docchange == tickall)//最后一个文件输出
+			{
+				string docc = to_string(docchange);
+				string docname = fname + "_" + docc + ".mcfunction";
+				ofstream functioncout(docname);
+				functioncout << "execute as @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << docchange << "] at @s run "
+					<< "tp"
+					<< fixed << setprecision(8)
+					<< " ~" << x << " ~" << y << " ~" << z << endl;
+				functioncout << "kill @e[type=minecraft:armor_stand,tag=" << fname << ",tag=" << tickall << "]";
+				functioncout.close();
+			}
+			else
+				jsonoutloop--;
+		}
+
+		string docname = fname + ".mcfunction";//启动子
+		ofstream functioncout(docname);
+		functioncout << "summon minecraft:armor_stand ~ ~ ~ {Tags:[\"" << fname << "\",\"0\"],Marker:1,HandItems:[{id:\"minecraft:snowball\",Count:1b}],Rotation:[" << rotsnow << "]}" << endl;
+		functioncout << "function minecraft:" << fname << "_0";
+		functioncout.close();
+
 	}
 	break;
 	}
