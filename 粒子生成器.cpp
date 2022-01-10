@@ -56,7 +56,7 @@ int main()
 		<< "16.扩散圆" << endl
 		<< "17.收敛旋转三角(幻幻)" << endl
 		<< "18.方形连接(幻幻)" << endl
-		<< "19.Soma3" << endl
+		<< "19.平面Soma3" << endl
 		<< "501.正方体边框" << endl
 		<< "1000.粒子画" << endl
 		<< "1001.falling_block" << endl
@@ -3157,6 +3157,187 @@ int main()
 	}
 	break;
 	case 19:
+	{
+		float x1, y1, z1;
+		float x2, y2, z2;
+		float x3, y3, z3;//圆心
+		float x4, y4, z4;//第三点
+		cout << "平面Soma3，请确保各点y值相同" << endl;
+		cout << "输入粒子密度" << endl;//每tick执行多少指令
+		float tickchange;
+		cin >> tickchange;
+		float tickchange2 = floor(tickchange / (2.0 * 3.1415926535));
+		cout << "输入函数名称" << endl;
+		string fname;
+		cin >> fname;
+		cout << "输入起点坐标" << endl;
+		cin >> x1 >> y1 >> z1;
+
+		cout << "输入过程耗时" << endl;//在多少tick内执行全部指令
+		int tickall = 0, ticki = 0;
+		cin >> ticki;
+		tickall += ticki;
+		cout << "输入过点坐标" << endl;
+		cin >> x2 >> y2 >> z2;
+		cout << "是否继续(Y/N)" << endl;
+		string ifloopp;
+		cin >> ifloopp;
+
+		x3 = (x1 + x2) / 2;
+		z3 = (z1 + z2) / 2;
+
+		float L12, L13, L23, LL14, LL12, LL42;
+		L12 = sqrt(pow(x2 - x1, 2)+ pow(z2 - z1, 2));
+		L13 = sqrt(pow(x3 - x1, 2)+ pow(z3 - z1, 2));
+		L23 = sqrt(pow(x3 - x2, 2)+ pow(z3 - z2, 2));
+		float theta,theta2;//总旋转角
+		theta = acos((pow(L13, 2) + pow(L23, 2) - pow(L12, 2)) / (2.0 * L13 * L23));
+
+		float jx, jy, jz;
+		float jx2, jy2, jz2;
+		jx = x1 - x3;
+		jz = z1 - z3;
+		float anglej0, anglej1;
+		anglej0 = atan2(jz, jx);
+
+		tickchange = floor(sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2))) * tickchange2;
+
+		int i = 0;
+		float countloop = 1;
+
+		for (float k = 0; countloop <= tickchange * ticki; k += theta / ((tickchange * ticki) - 1))
+		{
+			cx[i] = (x3 - x1) + 0.5 * L12 * cos(anglej0 + k);
+			cy[i] = 0;
+			cz[i] = (z3 - z1) + 0.5 * L12 * sin(anglej0 + k);
+			flexible_argument[i] = floor(sqrt(pow(x3 - x1, 2)+ pow(z3 - z1, 2)));//半径
+			i++;
+			countloop++;
+		}
+
+		int ifloop = 0;
+		if (ifloopp == "N" || ifloopp == "n")
+			ifloop = 1;
+
+		string docname = fname + "_tp_0.mcfunction";
+		string docname2 = fname + "_tp_1";
+		ofstream functioncout0(docname);
+		functioncout0 << "schedule function minecraft:" << docname2 << " " << ticki << "t";
+		functioncout0.close();
+
+		int looptp = 1;
+
+		while (ifloop == 0)
+		{
+			cout << "输入过程耗时" << endl;//在多少tick内执行全部指令
+			ticki = 0;
+			cin >> ticki;
+			tickall += ticki;
+
+			docname = fname + "_tp_" + to_string(looptp) + ".mcfunction";
+			docname2 = fname + "_tp_" + to_string(looptp + 1);
+			ofstream functioncout(docname);
+			functioncout << "execute as @e[type=minecraft:armor_stand,tag=" << fname << "] at @s run tp @s ~" << x2 - x1 << " ~" << y2 - y1 << " ~" << z2 - z1 << endl;
+			functioncout << "schedule function minecraft:" << docname2 << " " << ticki << "t";
+			functioncout.close();
+
+			x1 = x2;
+			y1 = y2;
+			z1 = z2;
+
+			cout << "输入过点坐标" << endl;
+			cin >> x2 >> y2 >> z2;
+			cout << "是否继续(Y/N)" << endl;
+			cin >> ifloopp;
+
+			x4 = x1 + cx[i - 1] - cx[i - 2];
+			y4 = y1 + cy[i - 1] - cy[i - 2];
+			z4 = z1 + cz[i - 1] - cz[i - 2];
+
+			float a1, b1, c1;
+			
+			a1 = x1 * (z2 - z4) - z1 * (x2 - x4) + x2 * z4 - x4 * z2;
+			b1 = (x1 * x1 + z1 * z1) * (z4 - z2) + (x2 * x2 + z2 * z2) * (z1 - z4) + (x4 * x4 + z4 * z4) * (z2 - z1);
+			c1 = (x1 * x1 + z1 * z1) * (x2 - x4) + (x2 * x2 + z2 * z2) * (x4 - x1) + (x4 * x4 + z4 * z4) * (x1 - x2);
+			
+			x3 = -b1 / (2.0 * a1);
+			y3 = y1;
+			z3 = -c1 / (2.0 * a1);
+
+			L12 = sqrt(pow(x2 - x1, 2) + pow(z2 - z1, 2));
+			L13 = sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2));
+			L23 = sqrt(pow(x3 - x2, 2) + pow(z3 - z2, 2));
+			theta = acos((pow(L13, 2) + pow(L23, 2) - pow(L12, 2)) / (2.0 * L13 * L23));//总旋转角
+
+			jx = x1 - x3;
+			jy = y1 - y3;
+			jz = z1 - z3;
+			anglej0 = atan2(jz,jx);//初始角
+
+			jx2 = x4 - x3;
+			jy2 = y4 - y3;
+			jz2 = z4 - z3;
+			anglej1 = atan2(jz2, jx2);//初始角2
+
+			LL14 = sqrt(pow(x4 - x1, 2) + pow(z4 - z1, 2));
+			LL12 = sqrt(pow(x2 - x1, 2) + pow(z2 - z1, 2));
+			LL42 = sqrt(pow(x2 - x4, 2) + pow(z2 - z4, 2));
+			theta2 = acos((pow(LL14, 2) + pow(LL12, 2) - pow(LL42, 2)) / (2.0 * LL14 * LL12));//总旋转角
+
+			if (2*theta2 >= 3.1415926535)
+				theta = 2.0 * 3.1415926535 - theta;
+
+			tickchange = floor(sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2))) * tickchange2;
+
+			countloop = 1;
+
+			if (anglej1 > anglej0)
+			{
+				for (float k = 0; countloop <= tickchange * ticki; k += (theta / (tickchange * ticki - 1)))
+				{
+					cx[i] = (x3 - x1) + L13 * cos(anglej0 + k);
+					cy[i] = 0;
+					cz[i] = (z3 - z1) + L13 * sin(anglej0 + k);
+					flexible_argument[i] = floor(sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2)));//半径
+					i++;
+					countloop++;
+				}
+			}
+			else
+			{
+				for (float k = 0; countloop <= tickchange * ticki; k += (theta / (tickchange * ticki - 1)))
+				{
+					cx[i] = (x3 - x1) + L13 * cos(anglej0 - k);
+					cy[i] = 0;
+					cz[i] = (z3 - z1) + L13 * sin(anglej0 - k);
+					flexible_argument[i] = floor(sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2)));//半径
+					i++;
+					countloop++;
+				}
+			}
+
+			if (ifloopp == "N" || ifloopp == "n")
+				ifloop = 1;
+			looptp++;
+		}
+
+		float x, y, z;//差值
+		x = x2 - x1;
+		y = y2 - y1;
+		z = z2 - z1;
+
+		writefunction_m8(i + 1 - looptp, x, y, z, tickchange2, tickall, fname);
+
+		docname = fname + ".mcfunction";//启动子
+		remove(docname.c_str());
+		ofstream functioncout1(docname);
+		functioncout1 << "summon minecraft:armor_stand ~ ~ ~ {Tags:[\"" << fname << "\",\"0\"],Invisible:1,Marker:1}" << endl;
+		functioncout1 << "function minecraft:" << fname << "_0" << endl;
+		functioncout1 << "function minecraft:" << fname << "_tp_0" << endl;
+		functioncout1.close();
+	}
+	break;
+	case 20:
 	{
 		float x1, y1, z1;
 		float x2, y2, z2;
