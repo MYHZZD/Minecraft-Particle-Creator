@@ -3187,10 +3187,10 @@ int main()
 		z3 = (z1 + z2) / 2;
 
 		float L12, L13, L23, LL14, LL12, LL42;
-		L12 = sqrt(pow(x2 - x1, 2)+ pow(z2 - z1, 2));
-		L13 = sqrt(pow(x3 - x1, 2)+ pow(z3 - z1, 2));
-		L23 = sqrt(pow(x3 - x2, 2)+ pow(z3 - z2, 2));
-		float theta,theta2;//×ÜÐý×ª½Ç
+		L12 = sqrt(pow(x2 - x1, 2) + pow(z2 - z1, 2));
+		L13 = sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2));
+		L23 = sqrt(pow(x3 - x2, 2) + pow(z3 - z2, 2));
+		float theta, theta2;//×ÜÐý×ª½Ç
 		theta = acos((pow(L13, 2) + pow(L23, 2) - pow(L12, 2)) / (2.0 * L13 * L23));
 
 		float jx, jy, jz;
@@ -3210,7 +3210,7 @@ int main()
 			cx[i] = (x3 - x1) + 0.5 * L12 * cos(anglej0 + k);
 			cy[i] = 0;
 			cz[i] = (z3 - z1) + 0.5 * L12 * sin(anglej0 + k);
-			flexible_argument[i] = floor(sqrt(pow(x3 - x1, 2)+ pow(z3 - z1, 2)));//°ë¾¶
+			flexible_argument[i] = floor(sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2)));//°ë¾¶
 			i++;
 			countloop++;
 		}
@@ -3255,11 +3255,11 @@ int main()
 			z4 = z1 + cz[i - 1] - cz[i - 2];
 
 			float a1, b1, c1;
-			
+
 			a1 = x1 * (z2 - z4) - z1 * (x2 - x4) + x2 * z4 - x4 * z2;
 			b1 = (x1 * x1 + z1 * z1) * (z4 - z2) + (x2 * x2 + z2 * z2) * (z1 - z4) + (x4 * x4 + z4 * z4) * (z2 - z1);
 			c1 = (x1 * x1 + z1 * z1) * (x2 - x4) + (x2 * x2 + z2 * z2) * (x4 - x1) + (x4 * x4 + z4 * z4) * (x1 - x2);
-			
+
 			x3 = -b1 / (2.0 * a1);
 			y3 = y1;
 			z3 = -c1 / (2.0 * a1);
@@ -3272,7 +3272,7 @@ int main()
 			jx = x1 - x3;
 			jy = y1 - y3;
 			jz = z1 - z3;
-			anglej0 = atan2(jz,jx);//³õÊ¼½Ç
+			anglej0 = atan2(jz, jx);//³õÊ¼½Ç
 
 			jx2 = x4 - x3;
 			jy2 = y4 - y3;
@@ -3284,7 +3284,7 @@ int main()
 			LL42 = sqrt(pow(x2 - x4, 2) + pow(z2 - z4, 2));
 			theta2 = acos((pow(LL14, 2) + pow(LL12, 2) - pow(LL42, 2)) / (2.0 * LL14 * LL12));//×ÜÐý×ª½Ç
 
-			if (2*theta2 >= 3.1415926535)
+			if (2 * theta2 >= 3.1415926535)
 				theta = 2.0 * 3.1415926535 - theta;
 
 			tickchange = floor(sqrt(pow(x3 - x1, 2) + pow(z3 - z1, 2))) * tickchange2;
