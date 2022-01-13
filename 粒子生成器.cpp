@@ -3344,7 +3344,7 @@ int main()
 		functioncout1.close();
 	}
 	break;
-	case 20:
+	case 200://working
 	{
 		float x1, y1, z1;
 		float x2, y2, z2;
@@ -3986,7 +3986,7 @@ int main()
 					int green = (int)color.GetGreen();
 					int blue = (int)color.GetBlue();
 					int alpha = (int)color.GetAlpha();
-					if (red < 127 && green < 127 && blue < 127)
+					if (red < 127 && green < 127 && blue < 127 && alpha == 255)
 					{
 
 						if (pp == 'Y' || pp == 'y')
