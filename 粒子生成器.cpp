@@ -3928,7 +3928,7 @@ int main()
 		Color color;
 
 		cout << "图片宽度:" << width << " 图片高度:" << height << endl;
-		cout << "请选择 灰度（1）或 彩色（2）或 动态灰度（3）或 动态彩色（4）模式:";
+		cout << "请选择 灰度（1）或 彩色（2）或 动态灰度（3）或 动态彩色（4）或 扩散灰度（5）模式:";
 		int picturec;
 		cin >> picturec;
 
@@ -3986,15 +3986,15 @@ int main()
 					int green = (int)color.GetGreen();
 					int blue = (int)color.GetBlue();
 					int alpha = (int)color.GetAlpha();
-					if (red < 127 && green < 127 && blue < 127 && alpha == 255)
+					if (red < 255 && green < 255 && blue < 255 && alpha == 255)//不是纯白就判定
 					{
 
 						if (pp == 'Y' || pp == 'y')
 						{
-							fout << "particle soy:life_end_rod " << pptime << " 1 ~ ~-" << y / 8 << " ~" << x / 8 << " 0 0 0 0 0 force @a" << endl;
+							fout << "particle soy:life_end_rod " << pptime << " 1 ~ ~-" << y / 10 << " ~" << x / 10 << " 0 0 0 0 0 force @a" << endl;
 						}
 						else
-							fout << "particle minecraft:end_rod ~ ~-" << y / 8 << " ~" << x / 8 << " 0 0 0 0 0 force @a" << endl;
+							fout << "particle minecraft:end_rod ~ ~-" << y / 10 << " ~" << x / 10 << " 0 0 0 0 0 force @a" << endl;
 					}
 				}
 
@@ -4131,6 +4131,28 @@ int main()
 			fout.close();
 		}
 		break;
+		case 5:
+		{
+			Color color;
+			ofstream fout(outfilename.c_str());
+
+			for (float y = 0; y < height; y++)
+				for (float x = 0; x < width; x++)
+				{
+					bmp->GetPixel(x, y, &color);
+					int red = (int)color.GetRed();
+					int green = (int)color.GetGreen();
+					int blue = (int)color.GetBlue();
+					int alpha = (int)color.GetAlpha();
+					if (red < 127 && green < 127 && blue < 127 && alpha == 255)//白判定
+					{
+						fout << "particle minecraft:end_rod ~ ~ ~ 0 " << fixed << setprecision(2) << (y - (height / 2.0)) / (-10.0) << " " << (x - (width / 2.0)) / 10.0 << " 0.090909 0 force @a" << endl;
+					}
+				}
+
+			fout.close();
+		}
+		break;
 		}
 		delete bmp;
 		GdiplusShutdown(gdiplustoken);
@@ -4154,9 +4176,11 @@ int main()
 
 		double motionx = (0.02 * x) / (1 - pow(0.98, tickall));
 		double motiony = (0.02 * (y + 2 * (tickall - 1))) / (1 - pow(0.98, (tickall - 1))) - 1.96;
+		double motiony2= (0.02 * (y + 2 * tickall)) / (1 - pow(0.98, tickall)) - 1.96;
 		double motionz = (0.02 * z) / (1 - pow(0.98, tickall));
 
 		cout << "summon falling_block ~ ~0.5 ~ {BlockState:{Name:\"minecraft:redstone_block\"},Time:1,Motion:[" << fixed << setprecision(14) << motionx << "," << motiony << "," << motionz << "]}" << endl;
+		cout << "summon falling_block ~ ~0.5 ~ {BlockState:{Name:\"minecraft:redstone_block\"},Time:1,Motion:[" << fixed << setprecision(14) << motionx << "," << motiony2 << "," << motionz << "]}" << endl;
 		for (double i = 0; i <= tickall; i++)
 		{
 			cout << fixed << setprecision(0) << i << ".";
